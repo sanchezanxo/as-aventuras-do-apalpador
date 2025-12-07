@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>As Aventuras do Apalpador</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-wrapper">
+        <!-- Panel esquerdo: Info do xogo -->
+        <aside class="panel" id="panel-left">
+            <h2>O Apalpador</h2>
+
+            <div class="stat-item">
+                <img class="stat-icon" src="assets/sprites/chestnut.png" alt="Castañas">
+                <div class="stat-info">
+                    <span class="stat-value" id="chestnut-count">0</span>
+                    <span class="stat-label">Castañas</span>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <img class="stat-icon" src="assets/sprites/star.png" alt="Puntos">
+                <div class="stat-info">
+                    <span class="stat-value" id="score-count">0</span>
+                    <span class="stat-label">Puntos</span>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <img class="stat-icon" src="assets/sprites/heart.png" alt="Vidas">
+                <div class="stat-info">
+                    <span class="stat-value" id="lives-count">3</span>
+                    <span class="stat-label">Vidas</span>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <img class="stat-icon" src="assets/sprites/fa2.png" alt="Tempo">
+                <div class="stat-info">
+                    <span class="stat-value" id="time-count">60</span>
+                    <span class="stat-label">Tempo</span>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <img class="stat-icon" src="assets/sprites/mountains.png" alt="Nivel">
+                <div class="stat-info">
+                    <span class="stat-value" id="level-display">1-1</span>
+                    <span class="stat-label">Nivel</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Container do xogo (Phaser) -->
+        <main id="game-container"></main>
+
+        <!-- Panel dereito: Accións -->
+        <aside class="panel" id="panel-right">
+            <h2>Opcións</h2>
+
+            <button class="action-btn placeholder" title="Ranking (próximamente)">🏆 Ranking</button>
+            <button class="action-btn placeholder" title="Compartir (próximamente)">🔗 Compartir</button>
+            <button class="action-btn placeholder" title="Opcións (próximamente)">⚙️ Opcións</button>
+            <button class="action-btn placeholder" title="Axuda (próximamente)">❓ Axuda</button>
+        </aside>
+    </div>
+
+    <!-- Mensaxe para xirar o móbil -->
+    <div id="rotate-message">
+        <span class="icon">📱</span>
+        <p><strong>Xira o móbil</strong></p>
+        <p>Para xogar, pon o dispositivo en horizontal</p>
+        <span class="icon">↻</span>
+    </div>
+
+    <!-- Controis táctiles (futuro) -->
+    <div id="touch-controls"></div>
+
+    <!-- Phaser 3 desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+
+    <!-- Punto de entrada do xogo -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

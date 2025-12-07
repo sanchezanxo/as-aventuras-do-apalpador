@@ -1,0 +1,171 @@
+/**
+ * O Apalpador - Estilos principais
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-background: #2d2d2d;
+    --color-panel-bg: rgba(0, 0, 0, 0.5);
+    --color-text: #ffffff;
+    --color-text-muted: #aaaaaa;
+    --color-accent: #f4a261;
+    --panel-width: 180px;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--color-background);
+    font-family: monospace;
+    color: var(--color-text);
+}
+
+/* Wrapper principal */
+#game-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+}
+
+/* Paneis laterais */
+.panel {
+    width: var(--panel-width);
+    height: 540px;
+    background: var(--color-panel-bg);
+    border: 2px solid #444;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.panel h2 {
+    font-size: 14px;
+    text-align: center;
+    color: var(--color-accent);
+    border-bottom: 1px solid var(--color-accent);
+    padding-bottom: 10px;
+}
+
+/* Estatísticas */
+.stat-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding-left: 30px;
+}
+
+.stat-icon {
+    width: 24px;
+    height: 24px;
+    image-rendering: pixelated;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: var(--color-text-muted);
+}
+
+/* Botóns de acción */
+.action-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 2px solid var(--color-text-muted);
+    border-radius: 5px;
+    color: var(--color-text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.action-btn:hover {
+    border-color: var(--color-accent);
+}
+
+.action-btn.placeholder {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Container do xogo */
+#game-container {
+    width: 960px;
+    height: 540px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Mensaxe xirar móbil */
+#rotate-message {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--color-background);
+    color: var(--color-text);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    gap: 20px;
+}
+
+#rotate-message .icon {
+    font-size: 64px;
+}
+
+#rotate-message p {
+    max-width: 280px;
+    line-height: 1.6;
+}
+
+/* Controis táctiles - ocultos no MVP */
+#touch-controls {
+    display: none;
+}
+
+/* Media queries */
+@media (max-width: 1400px) {
+    .panel {
+        width: 150px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .panel {
+        display: none;
+    }
+}
+
+@media (orientation: portrait) {
+    #game-wrapper {
+        display: none;
+    }
+
+    #rotate-message {
+        display: flex;
+    }
+}
