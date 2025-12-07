@@ -142,9 +142,54 @@ html, body {
     line-height: 1.6;
 }
 
-/* Controis táctiles - ocultos no MVP */
+/* Controis táctiles */
 #touch-controls {
     display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    padding: 10px 20px;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+#touch-controls .touch-group {
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+#touch-controls .touch-btn {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+#touch-controls .touch-btn:active,
+#touch-controls .touch-btn.pressed {
+    background: rgba(244, 162, 97, 0.5);
+    border-color: #f4a261;
+}
+
+#touch-controls .touch-btn.jump {
+    width: 90px;
+    height: 90px;
+    font-size: 36px;
 }
 
 /* Media queries */
@@ -167,5 +212,31 @@ html, body {
 
     #rotate-message {
         display: flex;
+    }
+
+    #touch-controls {
+        display: none !important;
+    }
+}
+
+/* Móbil en landscape - mostrar controis táctiles */
+@media (max-width: 1024px) and (orientation: landscape) {
+    #touch-controls {
+        display: flex;
+    }
+
+    #game-container {
+        width: 100%;
+        height: calc(100% - 120px);
+        border-radius: 0;
+    }
+
+    #game-wrapper {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .panel {
+        display: none;
     }
 }

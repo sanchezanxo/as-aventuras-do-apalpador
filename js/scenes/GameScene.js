@@ -161,10 +161,16 @@ export default class GameScene extends Phaser.Scene {
             right: Phaser.Input.Keyboard.KeyCodes.D
         });
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        // Sistema de pausa
+        this.isPaused = false;
+        this.pauseOverlay = null;
+        this.escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        this.escKey.on('down', () => this.togglePause());
     }
 
     update() {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isPaused) return;
 
         const body = this.player.body;
         const onGround = body.blocked.down || body.touching.down;
@@ -179,10 +185,13 @@ export default class GameScene extends Phaser.Scene {
             this.wallSide = 0;
         }
 
+        // Controis táctiles (se existen)
+        const touch = window.touchControls || { left: false, right: false, jump: false, jumpJustPressed: false };
+
         // Detectar wall slide
         if (inAir && (onWallLeft || onWallRight)) {
-            const leftPressed = this.cursors.left.isDown || this.wasd.left.isDown;
-            const rightPressed = this.cursors.right.isDown || this.wasd.right.isDown;
+            const leftPressed = this.cursors.left.isDown || this.wasd.left.isDown || touch.left;
+            const rightPressed = this.cursors.right.isDown || this.wasd.right.isDown || touch.right;
 
             // Só wall slide se está empuxando contra a parede
             if ((onWallLeft && leftPressed) || (onWallRight && rightPressed)) {
@@ -200,8 +209,8 @@ export default class GameScene extends Phaser.Scene {
         }
 
         // Movemento horizontal
-        const leftPressed = this.cursors.left.isDown || this.wasd.left.isDown;
-        const rightPressed = this.cursors.right.isDown || this.wasd.right.isDown;
+        const leftPressed = this.cursors.left.isDown || this.wasd.left.isDown || touch.left;
+        const rightPressed = this.cursors.right.isDown || this.wasd.right.isDown || touch.right;
 
         if (leftPressed) {
             this.player.setVelocityX(-PLAYER.SPEED);
@@ -216,9 +225,15 @@ export default class GameScene extends Phaser.Scene {
         // Salto (JustDown para evitar manter pulsado)
         const jumpJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
                                 Phaser.Input.Keyboard.JustDown(this.wasd.up) ||
-                                Phaser.Input.Keyboard.JustDown(this.spaceKey);
+                                Phaser.Input.Keyboard.JustDown(this.spaceKey) ||
+                                touch.jumpJustPressed;
 
-        const jumpHeld = this.cursors.up.isDown || this.wasd.up.isDown || this.spaceKey.isDown;
+        const jumpHeld = this.cursors.up.isDown || this.wasd.up.isDown || this.spaceKey.isDown || touch.jump;
+
+        // Reset do jumpJustPressed táctil despois de lelo
+        if (touch.jumpJustPressed) {
+            touch.jumpJustPressed = false;
+        }
 
         if (jumpJustPressed) {
             if (this.isWallSliding) {
@@ -256,6 +271,49 @@ export default class GameScene extends Phaser.Scene {
             this.player.setTexture('player-idle');
             this.runFrameTimer = 0;
             this.runFrameIndex = 0;
+        }
+    }
+
+    togglePause() {
+        if (this.gameOver) return;
+
+        this.isPaused = !this.isPaused;
+
+        if (this.isPaused) {
+            // Pausar física e timer
+            this.physics.pause();
+            if (this.timerEvent) this.timerEvent.paused = true;
+
+            // Crear overlay de pausa
+            this.pauseOverlay = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
+
+            const bg = this.add.rectangle(GAME.WIDTH / 2, GAME.HEIGHT / 2, GAME.WIDTH, GAME.HEIGHT, 0x000000, 0.7);
+            this.pauseOverlay.add(bg);
+
+            const title = this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 - 40, 'PAUSA', {
+                fontSize: '48px',
+                fontFamily: 'monospace',
+                fill: '#ffffff',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+            this.pauseOverlay.add(title);
+
+            const hint = this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 30, 'Preme ESC para continuar', {
+                fontSize: '18px',
+                fontFamily: 'monospace',
+                fill: '#aaaaaa'
+            }).setOrigin(0.5);
+            this.pauseOverlay.add(hint);
+        } else {
+            // Reanudar física e timer
+            this.physics.resume();
+            if (this.timerEvent) this.timerEvent.paused = false;
+
+            // Destruír overlay
+            if (this.pauseOverlay) {
+                this.pauseOverlay.destroy();
+                this.pauseOverlay = null;
+            }
         }
     }
 
@@ -418,61 +476,40 @@ export default class GameScene extends Phaser.Scene {
         particles.explode();
     }
 
-    reachGoal() {
+    showEndScreen(config) {
         if (this.gameOver) return;
         this.gameOver = true;
 
-        // Parar o timer
-        if (this.timerEvent) {
-            this.timerEvent.remove();
-        }
-
-        // Pausar física do xogador
+        // Parar timer e física
+        if (this.timerEvent) this.timerEvent.remove();
         this.player.setVelocity(0, 0);
         this.player.body.enable = false;
 
-        // Calcular bonus
-        const timeBonus = this.timeRemaining * SCORE.TIME_BONUS;
-        const lifeBonus = this.lives * SCORE.LIFE_BONUS;
-        const finalScore = this.score + timeBonus + lifeBonus;
+        // Overlay escuro
+        this.add.rectangle(GAME.WIDTH / 2, GAME.HEIGHT / 2, GAME.WIDTH, GAME.HEIGHT, 0x000000, 0.7)
+            .setScrollFactor(0);
 
-        // Actualizar HUD
-        document.getElementById('score-count').textContent = finalScore;
-
-        // Overlay escuro (fixo á cámara)
-        this.add.rectangle(
-            GAME.WIDTH / 2, GAME.HEIGHT / 2,
-            GAME.WIDTH, GAME.HEIGHT,
-            0x000000, 0.7
-        ).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 - 80, 'Nivel completado!', {
+        // Título
+        const startY = GAME.HEIGHT / 2 - (config.lines.length * 15) - 20;
+        this.add.text(GAME.WIDTH / 2, startY, config.title, {
             fontSize: '36px',
-            fill: '#ffffff'
+            fontFamily: 'monospace',
+            fill: config.titleColor
         }).setOrigin(0.5).setScrollFactor(0);
 
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 - 30, `Castañas: ${this.chestnutCount}/${this.totalChestnuts} = ${this.score} pts`, {
-            fontSize: '20px',
-            fill: '#f4a261'
-        }).setOrigin(0.5).setScrollFactor(0);
+        // Liñas de información
+        config.lines.forEach((line, i) => {
+            this.add.text(GAME.WIDTH / 2, startY + 50 + (i * 30), line.text, {
+                fontSize: line.fontSize || '20px',
+                fontFamily: 'monospace',
+                fill: line.color
+            }).setOrigin(0.5).setScrollFactor(0);
+        });
 
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2, `Tempo: ${this.timeRemaining}s x ${SCORE.TIME_BONUS} = ${timeBonus} pts`, {
-            fontSize: '20px',
-            fill: '#87CEEB'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 30, `Vidas: ${this.lives} x ${SCORE.LIFE_BONUS} = ${lifeBonus} pts`, {
-            fontSize: '20px',
-            fill: '#ff6b6b'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 70, `TOTAL: ${finalScore} pts`, {
-            fontSize: '28px',
-            fill: '#ffcc00'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 120, 'Preme ESPAZO para xogar de novo', {
+        // Prompt para reiniciar
+        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 120, config.prompt, {
             fontSize: '18px',
+            fontFamily: 'monospace',
             fill: '#aaaaaa'
         }).setOrigin(0.5).setScrollFactor(0);
 
@@ -481,7 +518,28 @@ export default class GameScene extends Phaser.Scene {
             document.getElementById('chestnut-count').textContent = '0';
             document.getElementById('score-count').textContent = '0';
             document.getElementById('time-count').textContent = this.levelData.timeLimit || 60;
-            this.scene.start('BootScene');
+            if (config.resetLives) document.getElementById('lives-count').textContent = '3';
+            this.scene.restart({ levelData: this.levelData });
+        });
+    }
+
+    reachGoal() {
+        const timeBonus = this.timeRemaining * SCORE.TIME_BONUS;
+        const lifeBonus = this.lives * SCORE.LIFE_BONUS;
+        const finalScore = this.score + timeBonus + lifeBonus;
+        document.getElementById('score-count').textContent = finalScore;
+
+        this.showEndScreen({
+            title: 'Nivel completado!',
+            titleColor: '#ffffff',
+            prompt: 'Preme ESPAZO para xogar de novo',
+            resetLives: false,
+            lines: [
+                { text: `Castañas: ${this.chestnutCount}/${this.totalChestnuts} = ${this.score} pts`, color: '#f4a261' },
+                { text: `Tempo: ${this.timeRemaining}s x ${SCORE.TIME_BONUS} = ${timeBonus} pts`, color: '#87CEEB' },
+                { text: `Vidas: ${this.lives} x ${SCORE.LIFE_BONUS} = ${lifeBonus} pts`, color: '#ff6b6b' },
+                { text: `TOTAL: ${finalScore} pts`, color: '#ffcc00', fontSize: '28px' }
+            ]
         });
     }
 
@@ -497,47 +555,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     timeOut() {
-        if (this.gameOver) return;
-        this.gameOver = true;
-
-        // Parar o timer
-        if (this.timerEvent) {
-            this.timerEvent.remove();
-        }
-
-        // Pausar física do xogador
-        this.player.setVelocity(0, 0);
-        this.player.body.enable = false;
-
-        // Overlay escuro
-        this.add.rectangle(
-            GAME.WIDTH / 2, GAME.HEIGHT / 2,
-            GAME.WIDTH, GAME.HEIGHT,
-            0x000000, 0.7
-        ).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 - 40, 'Tempo esgotado!', {
-            fontSize: '36px',
-            fill: '#ff6b6b'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 20, `Castañas: ${this.chestnutCount}/${this.totalChestnuts}`, {
-            fontSize: '24px',
-            fill: '#f4a261'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 80, 'Preme ESPAZO para reintentar', {
-            fontSize: '18px',
-            fill: '#aaaaaa'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        // Escoitar espazo para reiniciar
-        this.input.keyboard.once('keydown-SPACE', () => {
-            document.getElementById('chestnut-count').textContent = '0';
-            document.getElementById('score-count').textContent = '0';
-            document.getElementById('time-count').textContent = this.levelData.timeLimit || 60;
-            document.getElementById('lives-count').textContent = '3';
-            this.scene.start('BootScene');
+        this.showEndScreen({
+            title: 'Tempo esgotado!',
+            titleColor: '#ff6b6b',
+            prompt: 'Preme ESPAZO para reintentar',
+            resetLives: true,
+            lines: [
+                { text: `Castañas: ${this.chestnutCount}/${this.totalChestnuts}`, color: '#f4a261', fontSize: '24px' }
+            ]
         });
     }
 
@@ -571,47 +596,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     playerDeath() {
-        if (this.gameOver) return;
-        this.gameOver = true;
-
-        // Parar o timer
-        if (this.timerEvent) {
-            this.timerEvent.remove();
-        }
-
-        // Pausar física do xogador
-        this.player.setVelocity(0, 0);
-        this.player.body.enable = false;
-
-        // Overlay escuro
-        this.add.rectangle(
-            GAME.WIDTH / 2, GAME.HEIGHT / 2,
-            GAME.WIDTH, GAME.HEIGHT,
-            0x000000, 0.7
-        ).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 - 40, 'Game Over!', {
-            fontSize: '36px',
-            fill: '#ff6b6b'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 20, `Castañas: ${this.chestnutCount}/${this.totalChestnuts}`, {
-            fontSize: '24px',
-            fill: '#f4a261'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 80, 'Preme ESPAZO para reintentar', {
-            fontSize: '18px',
-            fill: '#aaaaaa'
-        }).setOrigin(0.5).setScrollFactor(0);
-
-        // Escoitar espazo para reiniciar
-        this.input.keyboard.once('keydown-SPACE', () => {
-            document.getElementById('chestnut-count').textContent = '0';
-            document.getElementById('score-count').textContent = '0';
-            document.getElementById('time-count').textContent = this.levelData.timeLimit || 60;
-            document.getElementById('lives-count').textContent = '3';
-            this.scene.start('BootScene');
+        this.showEndScreen({
+            title: 'Game Over!',
+            titleColor: '#ff6b6b',
+            prompt: 'Preme ESPAZO para reintentar',
+            resetLives: true,
+            lines: [
+                { text: `Castañas: ${this.chestnutCount}/${this.totalChestnuts}`, color: '#f4a261', fontSize: '24px' }
+            ]
         });
     }
 }

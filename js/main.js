@@ -6,6 +6,7 @@
 import { GAME } from './config/constants.js';
 import MenuScene from './scenes/MenuScene.js';
 import BootScene from './scenes/BootScene.js';
+import IntroScene from './scenes/IntroScene.js';
 import GameScene from './scenes/GameScene.js';
 
 // Configuración de Phaser
@@ -25,7 +26,7 @@ const config = {
             debug: false
         }
     },
-    scene: [MenuScene, BootScene, GameScene]
+    scene: [MenuScene, BootScene, IntroScene, GameScene]
 };
 
 // Crear instancia do xogo

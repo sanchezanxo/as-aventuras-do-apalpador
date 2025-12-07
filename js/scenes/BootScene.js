@@ -53,12 +53,15 @@ export default class BootScene extends Phaser.Scene {
             frameHeight: 16
         });
 
-        // Cargar nivel
+        // Cargar nivel e intro
         this.load.json('level1', 'levels/world1/level1.json');
+        this.load.json('intro', 'data/intro.json');
     }
 
     create() {
-        // Pasar á escena do xogo cos datos do nivel
-        this.scene.start('GameScene', { levelData: this.cache.json.get('level1') });
+        // Pasar á intro cos datos
+        const levelData = this.cache.json.get('level1');
+        const introData = this.cache.json.get('intro');
+        this.scene.start('IntroScene', { introData, levelData });
     }
 }
