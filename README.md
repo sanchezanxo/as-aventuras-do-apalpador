@@ -2,6 +2,10 @@
 
 Xogo de plataformas 2D en galego protagonizado polo Apalpador, a mítica personaxe do Nadal galego.
 
+## Historia
+
+Nas montañas de Galicia, cando chega o inverno e a neve cobre os cumios, aparece unha figura mítica... O Apalpador. Trátase dun carboneiro xigante de barba longa e corazón xeneroso que baixa das montañas cada Nadal. A súa misión é a de visitar os nenos e as nenas de Galicia para comprobar se comeron ben durante todo o ano. Apálpalles o bandullo e déixalles unha presada de castañas e algún que outro agasallo. Pero este ano algo pasou! As castañas perdéronse entre os soutos... Axuda ao Apalpador a recuperalas antes de que remate o tempo!
+
 ## Xogar
 
 Visita [apalpador.io](https://apalpador.io) para xogar directamente no navegador.

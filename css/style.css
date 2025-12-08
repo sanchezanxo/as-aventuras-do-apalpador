@@ -149,47 +149,54 @@ html, body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 120px;
+    height: 100px;
     padding: 10px 20px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
     justify-content: space-between;
     align-items: center;
     pointer-events: none;
     z-index: 1000;
+    box-sizing: border-box;
 }
 
 #touch-controls .touch-group {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     pointer-events: auto;
 }
 
 #touch-controls .touch-btn {
-    width: 70px;
-    height: 70px;
-    background: rgba(255, 255, 255, 0.15);
-    border: 3px solid rgba(255, 255, 255, 0.4);
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     color: #ffffff;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 #touch-controls .touch-btn:active,
 #touch-controls .touch-btn.pressed {
-    background: rgba(244, 162, 97, 0.5);
+    background: rgba(244, 162, 97, 0.6);
     border-color: #f4a261;
+    transform: scale(0.95);
 }
 
 #touch-controls .touch-btn.jump {
-    width: 90px;
-    height: 90px;
-    font-size: 36px;
+    width: 75px;
+    height: 75px;
+    font-size: 32px;
 }
 
 /* Media queries */
@@ -219,7 +226,7 @@ html, body {
     }
 }
 
-/* Móbil en landscape - mostrar controis táctiles */
+/* Móbil en landscape - mostrar controis táctiles e HUD */
 @media (max-width: 1024px) and (orientation: landscape) {
     #touch-controls {
         display: flex;
@@ -227,16 +234,52 @@ html, body {
 
     #game-container {
         width: 100%;
-        height: calc(100% - 120px);
+        height: calc(100vh - 100px);
         border-radius: 0;
     }
 
     #game-wrapper {
         flex-direction: column;
         gap: 0;
+        height: 100%;
     }
 
     .panel {
         display: none;
     }
+
+    /* HUD móbil */
+    #mobile-hud {
+        display: flex !important;
+    }
+}
+
+/* HUD móbil - oculto por defecto */
+#mobile-hud {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 1000;
+    font-family: monospace;
+    font-size: 12px;
+    color: #ffffff;
+}
+
+#mobile-hud .hud-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#mobile-hud .hud-item img {
+    width: 18px;
+    height: 18px;
+    image-rendering: pixelated;
 }

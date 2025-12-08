@@ -13,7 +13,7 @@ export default class MenuScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('#1a1a2e');
 
         // Título principal
-        this.add.text(GAME.WIDTH / 2, 100, 'As Aventuras do', {
+        this.add.text(GAME.WIDTH / 2, 100, 'As aventuras do', {
             fontSize: '28px',
             fontFamily: 'monospace',
             fill: '#87CEEB'
@@ -27,7 +27,8 @@ export default class MenuScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Instrucións para comezar (con parpadeo)
-        const startText = this.add.text(GAME.WIDTH / 2, 320, 'Preme calquera tecla para comezar', {
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const startText = this.add.text(GAME.WIDTH / 2, 320, isMobile ? 'Toca para comezar' : 'Preme calquera tecla para comezar', {
             fontSize: '20px',
             fontFamily: 'monospace',
             fill: '#ffffff'
@@ -50,19 +51,13 @@ export default class MenuScene extends Phaser.Scene {
             fill: '#f4a261'
         }).setOrigin(0.5);
 
-        this.add.text(GAME.WIDTH / 2, 425, 'Proxecto de Anxo Sánchez (@sanchezanxo)', {
-            fontSize: '12px',
-            fontFamily: 'monospace',
-            fill: '#aaaaaa'
-        }).setOrigin(0.5);
-
         this.add.text(GAME.WIDTH / 2, 445, 'Sprites de itch.io (licenzas non comerciais)', {
             fontSize: '10px',
             fontFamily: 'monospace',
             fill: '#666666'
         }).setOrigin(0.5);
 
-        this.add.text(GAME.WIDTH / 2, 460, 'Feito con Phaser 3', {
+        this.add.text(GAME.WIDTH / 2, 460, 'Xogo para navegador. Coa axuda de Phaser 3', {
             fontSize: '10px',
             fontFamily: 'monospace',
             fill: '#666666'

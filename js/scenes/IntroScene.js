@@ -16,6 +16,7 @@ export default class IntroScene extends Phaser.Scene {
 
     create() {
         this.cameras.main.setBackgroundColor('#1a1a2e');
+        this.isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
         // Titulo da historia
         this.add.text(GAME.WIDTH / 2, 60, this.introData.title, {
@@ -95,7 +96,11 @@ export default class IntroScene extends Phaser.Scene {
 
         // Actualizar prompt
         const isLastPage = this.currentPage === pages.length - 1;
-        this.promptText.setText(isLastPage ? 'Preme ESPAZO para comezar' : 'Preme ESPAZO para continuar');
+        if (this.isMobile) {
+            this.promptText.setText(isLastPage ? 'Toca para comezar' : 'Toca para continuar');
+        } else {
+            this.promptText.setText(isLastPage ? 'Preme ESPAZO para comezar' : 'Preme ESPAZO para continuar');
+        }
     }
 
     nextPage() {

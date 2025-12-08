@@ -69,12 +69,12 @@ export default class GameScene extends Phaser.Scene {
         // Sistema de vidas
         this.lives = 3;
         this.isInvulnerable = false;
-        document.getElementById('lives-count').textContent = this.lives;
+        this.updateHUD('lives', this.lives);
 
         // Sistema de tempo
         this.timeLimit = this.levelData.timeLimit || 60;
         this.timeRemaining = this.timeLimit;
-        document.getElementById('time-count').textContent = this.timeRemaining;
+        this.updateHUD('time', this.timeRemaining);
 
         // Timer que resta 1 segundo cada 1000ms
         this.timerEvent = this.time.addEvent({
@@ -274,6 +274,32 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
+    updateHUD(type, value) {
+        // Actualizar HUD desktop
+        const desktopMap = {
+            'chestnut': 'chestnut-count',
+            'score': 'score-count',
+            'lives': 'lives-count',
+            'time': 'time-count'
+        };
+        // Actualizar HUD móbil
+        const mobileMap = {
+            'chestnut': 'mobile-chestnut',
+            'score': 'mobile-score',
+            'lives': 'mobile-lives',
+            'time': 'mobile-time'
+        };
+
+        if (desktopMap[type]) {
+            const el = document.getElementById(desktopMap[type]);
+            if (el) el.textContent = value;
+        }
+        if (mobileMap[type]) {
+            const el = document.getElementById(mobileMap[type]);
+            if (el) el.textContent = value;
+        }
+    }
+
     togglePause() {
         if (this.gameOver) return;
 
@@ -441,9 +467,9 @@ export default class GameScene extends Phaser.Scene {
         this.chestnutCount++;
         this.score += SCORE.CHESTNUT;
 
-        // Actualizar HUD HTML
-        document.getElementById('chestnut-count').textContent = this.chestnutCount;
-        document.getElementById('score-count').textContent = this.score;
+        // Actualizar HUD
+        this.updateHUD('chestnut', this.chestnutCount);
+        this.updateHUD('score', this.score);
 
         // Efecto visual: texto "+10" que sobe e desaparece
         const scoreText = this.add.text(x, y, '+10', {
@@ -506,20 +532,28 @@ export default class GameScene extends Phaser.Scene {
             }).setOrigin(0.5).setScrollFactor(0);
         });
 
-        // Prompt para reiniciar
-        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 120, config.prompt, {
+        // Prompt para reiniciar (adaptar a móbil)
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const promptText = isMobile ? config.promptMobile || 'Toca para reintentar' : config.prompt;
+        this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2 + 120, promptText, {
             fontSize: '18px',
             fontFamily: 'monospace',
             fill: '#aaaaaa'
         }).setOrigin(0.5).setScrollFactor(0);
 
-        // Escoitar espazo para reiniciar
-        this.input.keyboard.once('keydown-SPACE', () => {
-            document.getElementById('chestnut-count').textContent = '0';
-            document.getElementById('score-count').textContent = '0';
-            document.getElementById('time-count').textContent = this.levelData.timeLimit || 60;
-            if (config.resetLives) document.getElementById('lives-count').textContent = '3';
+        // Función de reinicio
+        const restartGame = () => {
+            this.updateHUD('chestnut', 0);
+            this.updateHUD('score', 0);
+            this.updateHUD('time', this.levelData.timeLimit || 60);
+            if (config.resetLives) this.updateHUD('lives', 3);
             this.scene.restart({ levelData: this.levelData });
+        };
+
+        // Escoitar espazo e tap para reiniciar
+        this.input.keyboard.once('keydown-SPACE', restartGame);
+        this.time.delayedCall(500, () => {
+            this.input.once('pointerdown', restartGame);
         });
     }
 
@@ -527,12 +561,13 @@ export default class GameScene extends Phaser.Scene {
         const timeBonus = this.timeRemaining * SCORE.TIME_BONUS;
         const lifeBonus = this.lives * SCORE.LIFE_BONUS;
         const finalScore = this.score + timeBonus + lifeBonus;
-        document.getElementById('score-count').textContent = finalScore;
+        this.updateHUD('score', finalScore);
 
         this.showEndScreen({
             title: 'Nivel completado!',
             titleColor: '#ffffff',
             prompt: 'Preme ESPAZO para xogar de novo',
+            promptMobile: 'Toca para xogar de novo',
             resetLives: false,
             lines: [
                 { text: `Castañas: ${this.chestnutCount}/${this.totalChestnuts} = ${this.score} pts`, color: '#f4a261' },
@@ -547,7 +582,7 @@ export default class GameScene extends Phaser.Scene {
         if (this.gameOver) return;
 
         this.timeRemaining--;
-        document.getElementById('time-count').textContent = this.timeRemaining;
+        this.updateHUD('time', this.timeRemaining);
 
         if (this.timeRemaining <= 0) {
             this.timeOut();
@@ -570,7 +605,7 @@ export default class GameScene extends Phaser.Scene {
         if (this.isInvulnerable || this.gameOver) return;
 
         this.lives--;
-        document.getElementById('lives-count').textContent = this.lives;
+        this.updateHUD('lives', this.lives);
 
         if (this.lives <= 0) {
             this.playerDeath();
