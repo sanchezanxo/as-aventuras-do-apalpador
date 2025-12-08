@@ -171,12 +171,6 @@ html, body {
     background: rgba(0, 0, 0, 0.4);
     border: 2px solid rgba(255, 255, 255, 0.5);
     border-radius: 50%;
-    color: #ffffff;
-    font-size: 28px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -184,6 +178,38 @@ html, body {
     outline: none;
     -webkit-appearance: none;
     appearance: none;
+    position: relative;
+}
+
+/* Frechas con CSS - triángulos perfectos en todos os dispositivos */
+#touch-controls .touch-btn.arrow-left::before,
+#touch-controls .touch-btn.arrow-right::before,
+#touch-controls .touch-btn.arrow-up::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+#touch-controls .touch-btn.arrow-left::before {
+    border-width: 10px 14px 10px 0;
+    border-color: transparent #ffffff transparent transparent;
+    transform: translate(-60%, -50%);
+}
+
+#touch-controls .touch-btn.arrow-right::before {
+    border-width: 10px 0 10px 14px;
+    border-color: transparent transparent transparent #ffffff;
+    transform: translate(-40%, -50%);
+}
+
+#touch-controls .touch-btn.arrow-up::before {
+    border-width: 0 12px 16px 12px;
+    border-color: transparent transparent #ffffff transparent;
+    transform: translate(-50%, -60%);
 }
 
 #touch-controls .touch-btn:active,
@@ -196,7 +222,10 @@ html, body {
 #touch-controls .touch-btn.jump {
     width: 75px;
     height: 75px;
-    font-size: 32px;
+}
+
+#touch-controls .touch-btn.jump.arrow-up::before {
+    border-width: 0 14px 20px 14px;
 }
 
 /* Media queries */
@@ -234,14 +263,28 @@ html, body {
 
     #game-container {
         width: 100%;
-        height: calc(100vh - 100px);
+        height: calc(100dvh - 100px);
+        height: calc(100vh - 100px); /* Fallback para navegadores antigos */
         border-radius: 0;
+    }
+
+    @supports (height: 100dvh) {
+        #game-container {
+            height: calc(100dvh - 100px);
+        }
     }
 
     #game-wrapper {
         flex-direction: column;
         gap: 0;
-        height: 100%;
+        height: 100dvh;
+        height: 100vh; /* Fallback */
+    }
+
+    @supports (height: 100dvh) {
+        #game-wrapper {
+            height: 100dvh;
+        }
     }
 
     .panel {
